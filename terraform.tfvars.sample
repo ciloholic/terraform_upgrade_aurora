@@ -1,0 +1,14 @@
+# aws config
+aws_access_key = ""
+aws_secret_key = ""
+
+# service config
+service_name = ""
+env          = ""
+
+# aurora config
+aurora_master_username         = ""
+aurora_engine_version          = ""
+aurora_cluster_instance_count  = 
+aurora_instance_class          = ""
+aurora_backup_retention_period = 
