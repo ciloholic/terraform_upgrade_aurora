@@ -1,6 +1,40 @@
 resource "aws_rds_cluster_parameter_group" "example" {
   name   = "${local.service_config.prefix}-cluster-parameter-group"
-  family = local.aurora_config.family
+  family = local.aurora_config.family_11
+
+  dynamic "parameter" {
+    for_each = [
+      { name = "lc_monetary", value = "ja_JP.UTF-8" },
+      { name = "lc_numeric", value = "ja_JP.UTF-8" },
+      { name = "lc_time", value = "ja_JP.UTF-8" }
+    ]
+    content {
+      name  = parameter.value.name
+      value = parameter.value.value
+    }
+  }
+}
+
+resource "aws_rds_cluster_parameter_group" "example_12" {
+  name   = "${local.service_config.prefix}-cluster-parameter-group-12"
+  family = local.aurora_config.family_12
+
+  dynamic "parameter" {
+    for_each = [
+      { name = "lc_monetary", value = "ja_JP.UTF-8" },
+      { name = "lc_numeric", value = "ja_JP.UTF-8" },
+      { name = "lc_time", value = "ja_JP.UTF-8" }
+    ]
+    content {
+      name  = parameter.value.name
+      value = parameter.value.value
+    }
+  }
+}
+
+resource "aws_rds_cluster_parameter_group" "example_13" {
+  name   = "${local.service_config.prefix}-cluster-parameter-group-13"
+  family = local.aurora_config.family_13
 
   dynamic "parameter" {
     for_each = [
@@ -17,7 +51,17 @@ resource "aws_rds_cluster_parameter_group" "example" {
 
 resource "aws_db_parameter_group" "example" {
   name   = "${local.service_config.prefix}-db-parameter-group"
-  family = local.aurora_config.family
+  family = local.aurora_config.family_11
+}
+
+resource "aws_db_parameter_group" "example_12" {
+  name   = "${local.service_config.prefix}-db-parameter-group-12"
+  family = local.aurora_config.family_12
+}
+
+resource "aws_db_parameter_group" "example_13" {
+  name   = "${local.service_config.prefix}-db-parameter-group-13"
+  family = local.aurora_config.family_13
 }
 
 resource "aws_db_subnet_group" "example" {
@@ -37,7 +81,7 @@ resource "aws_rds_cluster" "example" {
   port                            = 5432
   vpc_security_group_ids          = [aws_security_group.aurora.id]
   db_subnet_group_name            = aws_db_subnet_group.example.name
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.example.name
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.example_13.name
   backup_retention_period         = local.aurora_config.backup_retention_period
   preferred_backup_window         = "15:00-15:30"         # UTC
   preferred_maintenance_window    = "fri:16:00-fri:16:30" # UTC
@@ -60,7 +104,7 @@ resource "aws_rds_cluster_instance" "example" {
   engine                     = aws_rds_cluster.example.engine
   engine_version             = aws_rds_cluster.example.engine_version
   instance_class             = local.aurora_config.instance_class
-  db_parameter_group_name    = aws_db_parameter_group.example.name
+  db_parameter_group_name    = aws_db_parameter_group.example_13.name
   db_subnet_group_name       = aws_db_subnet_group.example.name
   ca_cert_identifier         = local.aurora_config.ca_cert_identifier
   auto_minor_version_upgrade = false
