@@ -1,14 +1,6 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-variable "aws_access_key" {
-  type      = string
-  sensitive = true
-}
-variable "aws_secret_key" {
-  type      = string
-  sensitive = true
-}
 variable "service_name" {
   type = string
 }

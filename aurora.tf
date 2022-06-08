@@ -81,7 +81,7 @@ resource "aws_rds_cluster" "example" {
   port                            = 5432
   vpc_security_group_ids          = [aws_security_group.aurora.id]
   db_subnet_group_name            = aws_db_subnet_group.example.name
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.example_13.name
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.example.name
   backup_retention_period         = local.aurora_config.backup_retention_period
   preferred_backup_window         = "15:00-15:30"         # UTC
   preferred_maintenance_window    = "fri:16:00-fri:16:30" # UTC
@@ -104,7 +104,7 @@ resource "aws_rds_cluster_instance" "example" {
   engine                     = aws_rds_cluster.example.engine
   engine_version             = aws_rds_cluster.example.engine_version
   instance_class             = local.aurora_config.instance_class
-  db_parameter_group_name    = aws_db_parameter_group.example_13.name
+  db_parameter_group_name    = aws_db_parameter_group.example.name
   db_subnet_group_name       = aws_db_subnet_group.example.name
   ca_cert_identifier         = local.aurora_config.ca_cert_identifier
   auto_minor_version_upgrade = false

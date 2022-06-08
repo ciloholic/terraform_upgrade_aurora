@@ -1,62 +1,37 @@
-# 事前準備
-
-## aws cli の用意
+# Aurora を 11.9 からどこまでアップグレードか確認する
 
 ```
-$ alias laws='docker run --rm -it -v ~/.aws:/root/.aws amazon/aws-cli'
-$ laws --version
-aws-cli/2.3.4 Python/3.8.8 Linux/5.10.47-linuxkit docker/x86_64.amzn.2 prompt/off
-```
-
-## aws cli のプロファイルを用意
-
-```
-$ laws configure list --profile terraform
-      Name                    Value             Type    Location
-      ----                    -----             ----    --------
-   profile                terraform           manual    --profile
-access_key     ****************U7VE shared-credentials-file
-secret_key     ****************zZuQ shared-credentials-file
-    region           ap-northeast-1      config-file    ~/.aws/config
-```
-
-## aws cli の設定
-
-```
-# ページネーションを無効化する
-$ laws configure set cli_pager '' --profile terraform
-```
-
-## Aurora を 11.9 からどこまでアップグレードか確認する
-
-```
-$ laws rds describe-db-engine-versions --engine aurora-postgresql --engine-version 11.9 --output table --query 'DBEngineVersions[].[ValidUpgradeTarget][][][].EngineVersion' --profile terraform
+$ aws-vault exec $AWS_PROFILE -- aws rds describe-db-engine-versions --engine aurora-postgresql --engine-version 11.9 --output table --query 'DBEngineVersions[].[ValidUpgradeTarget][][][].EngineVersion'
 --------------------------
 |DescribeDBEngineVersions|
 +------------------------+
 |  11.11                 |
 |  11.12                 |
 |  11.13                 |
+|  11.14                 |
+|  11.15                 |
 |  12.4                  |
 |  12.6                  |
 |  12.7                  |
 |  12.8                  |
+|  12.9                  |
+|  12.10                 |
 +------------------------+
 ```
 
 ```
-$ laws rds describe-db-engine-versions --engine aurora-postgresql --engine-version 12.8 --output table --query 'DBEngineVersions[].[ValidUpgradeTarget][][][].EngineVersion' --profile terraform
+$ aws-vault exec $AWS_PROFILE -- aws rds describe-db-engine-versions --engine aurora-postgresql --engine-version 12.10 --output table --query 'DBEngineVersions[].[ValidUpgradeTarget][][][].EngineVersion'
 --------------------------
 |DescribeDBEngineVersions|
 +------------------------+
-|  13.4                  |
+|  13.6                  |
 +------------------------+
 ```
 
-### 11.9 から段階を踏んで 13.4 にアップグレードする
+## 11.9 から段階を踏んで 13.6 にアップグレードする
 
 ```
-11.9 => 12.8 => 13.4
+11.9 => 12.10 => 13.6
 ```
 
 # Terraform での作業内容
@@ -80,34 +55,32 @@ resource "aws_rds_cluster_instance" "example" {
 - aws_rds_cluster_parameter_group
 - aws_db_parameter_group
 
-## 11.9 => 12.8 へのアップグレード
+## 11.9 => 12.10 へのアップグレード
 
-`12.8`へのアップグレード後、メンテナンスのアップデートを必要がある。  
-上記の作業が完了後、Terraform側の`aurora_engine_version`を`12.8`へ更新し、差分が発生しないことを確認する。
+`12.10`へのアップグレード後、メンテナンスのアップデートを必要がある。  
+上記の作業が完了後、Terraform側の`aurora_engine_version`を`12.10`へ更新し、差分が発生しないことを確認する。
 
 ```
-$ laws rds modify-db-cluster \
+$ aws-vault exec $AWS_PROFILE -- aws rds modify-db-cluster \
 --db-cluster-identifier tst-dev \
---engine-version 12.8 \
+--engine-version 12.10 \
 --db-cluster-parameter-group-name [PostgreSQL12のパラメーターを指定] \
 --db-instance-parameter-group-name [PostgreSQL12のパラメーターを指定] \
 --allow-major-version-upgrade \
---apply-immediately \
---profile terraform
+--apply-immediately
 ```
 
-## 12.8 => 13.4 へのアップグレード
+## 12.10 => 13.6 へのアップグレード
 
-`13.4`へのアップグレード後、メンテナンスのアップデートを必要がある。  
-上記の作業が完了後、Terraform側の`aurora_engine_version`を`13.4`へ更新し、差分が発生しないことを確認する。
+`13.6`へのアップグレード後、メンテナンスのアップデートを必要がある。  
+上記の作業が完了後、Terraform側の`aurora_engine_version`を`13.6`へ更新し、差分が発生しないことを確認する。
 
 ```
-laws rds modify-db-cluster \
+$ aws-vault exec $AWS_PROFILE -- aws rds modify-db-cluster \
 --db-cluster-identifier tst-dev \
---engine-version 13.4 \
+--engine-version 13.6 \
 --db-cluster-parameter-group-name [PostgreSQL13のパラメーターを指定] \
 --db-instance-parameter-group-name [PostgreSQL13のパラメーターを指定] \
 --allow-major-version-upgrade \
---apply-immediately \
---profile terraform
+--apply-immediately
 ```
