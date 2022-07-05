@@ -32,9 +32,9 @@ resource "aws_rds_cluster_parameter_group" "example_12" {
   }
 }
 
-resource "aws_rds_cluster_parameter_group" "example_13" {
-  name   = "${local.service_config.prefix}-cluster-parameter-group-13"
-  family = local.aurora_config.family_13
+resource "aws_rds_cluster_parameter_group" "example_14" {
+  name   = "${local.service_config.prefix}-cluster-parameter-group-14"
+  family = local.aurora_config.family_14
 
   dynamic "parameter" {
     for_each = [
@@ -59,9 +59,9 @@ resource "aws_db_parameter_group" "example_12" {
   family = local.aurora_config.family_12
 }
 
-resource "aws_db_parameter_group" "example_13" {
-  name   = "${local.service_config.prefix}-db-parameter-group-13"
-  family = local.aurora_config.family_13
+resource "aws_db_parameter_group" "example_14" {
+  name   = "${local.service_config.prefix}-db-parameter-group-14"
+  family = local.aurora_config.family_14
 }
 
 resource "aws_db_subnet_group" "example" {

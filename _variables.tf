@@ -57,7 +57,7 @@ locals {
     master_username         = var.aurora_master_username
     family_11               = "aurora-postgresql11"
     family_12               = "aurora-postgresql12"
-    family_13               = "aurora-postgresql13"
+    family_14               = "aurora-postgresql14"
     engine                  = "aurora-postgresql"
     engine_version          = var.aurora_engine_version
     cluster_instance_count  = var.aurora_cluster_instance_count

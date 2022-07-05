@@ -15,23 +15,24 @@ $ aws-vault exec $AWS_PROFILE -- aws rds describe-db-engine-versions --engine au
 |  12.7                  |
 |  12.8                  |
 |  12.9                  |
-|  12.10                 |
+|  12.11                 |
 +------------------------+
 ```
 
 ```
-$ aws-vault exec $AWS_PROFILE -- aws rds describe-db-engine-versions --engine aurora-postgresql --engine-version 12.10 --output table --query 'DBEngineVersions[].[ValidUpgradeTarget][][][].EngineVersion'
+$ aws-vault exec $AWS_PROFILE -- aws rds describe-db-engine-versions --engine aurora-postgresql --engine-version 12.11 --output table --query 'DBEngineVersions[].[ValidUpgradeTarget][][][].EngineVersion'
 --------------------------
 |DescribeDBEngineVersions|
 +------------------------+
-|  13.6                  |
+|  13.7                  |
+|  14.3                  |
 +------------------------+
 ```
 
-## 11.9 から段階を踏んで 13.6 にアップグレードする
+## 11.9 から段階を踏んで 14.3 にアップグレードする
 
 ```
-11.9 => 12.10 => 13.6
+11.9 => 12.11 => 14.3
 ```
 
 # Terraform での作業内容
@@ -47,40 +48,40 @@ resource "aws_rds_cluster_instance" "example" {
 }
 ```
 
-## PostgreSQL12、PostgreSQL13のパラメーター類を作成
+## PostgreSQL12、PostgreSQL14のパラメーター類を作成
 
-`PostgreSQL12`、`PostgreSQL13`のパラメーター類を事前に作成する。  
+`PostgreSQL12`、`PostgreSQL14`のパラメーター類を事前に作成する。  
 アップグレード完了後、`PostgreSQL11`、`PostgreSQL12`のパラメーター類を削除する。
 
 - aws_rds_cluster_parameter_group
 - aws_db_parameter_group
 
-## 11.9 => 12.10 へのアップグレード
+## 11.9 => 12.11 へのアップグレード
 
-`12.10`へのアップグレード後、メンテナンスのアップデートを必要がある。  
-上記の作業が完了後、Terraform側の`aurora_engine_version`を`12.10`へ更新し、差分が発生しないことを確認する。
+`12.11`へのアップグレード後、メンテナンスのアップデートを必要がある。  
+上記の作業が完了後、Terraform側の`aurora_engine_version`を`12.11`へ更新し、差分が発生しないことを確認する。
 
 ```
 $ aws-vault exec $AWS_PROFILE -- aws rds modify-db-cluster \
 --db-cluster-identifier tst-dev \
---engine-version 12.10 \
+--engine-version 12.11 \
 --db-cluster-parameter-group-name [PostgreSQL12のパラメーターを指定] \
 --db-instance-parameter-group-name [PostgreSQL12のパラメーターを指定] \
 --allow-major-version-upgrade \
 --apply-immediately
 ```
 
-## 12.10 => 13.6 へのアップグレード
+## 12.11 => 14.3 へのアップグレード
 
-`13.6`へのアップグレード後、メンテナンスのアップデートを必要がある。  
-上記の作業が完了後、Terraform側の`aurora_engine_version`を`13.6`へ更新し、差分が発生しないことを確認する。
+`14.3`へのアップグレード後、メンテナンスのアップデートを必要がある。  
+上記の作業が完了後、Terraform側の`aurora_engine_version`を`14.3`へ更新し、差分が発生しないことを確認する。
 
 ```
 $ aws-vault exec $AWS_PROFILE -- aws rds modify-db-cluster \
 --db-cluster-identifier tst-dev \
---engine-version 13.6 \
---db-cluster-parameter-group-name [PostgreSQL13のパラメーターを指定] \
---db-instance-parameter-group-name [PostgreSQL13のパラメーターを指定] \
+--engine-version 14.3 \
+--db-cluster-parameter-group-name [PostgreSQL14のパラメーターを指定] \
+--db-instance-parameter-group-name [PostgreSQL14のパラメーターを指定] \
 --allow-major-version-upgrade \
 --apply-immediately
 ```
